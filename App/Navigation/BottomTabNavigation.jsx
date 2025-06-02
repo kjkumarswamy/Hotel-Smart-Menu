@@ -6,6 +6,7 @@ import Colors from '../Utils/Colors';
 import HomeScreen from '../Screens/Home/HomeScreen';
 import OrdersScreen from '../Screens/Orders/OrdersScreen';
 import GalleryScreen from '../Screens/Gallery/GalleryScreen';
+import AboutHotelScreen from '../Screens/AboutHotelScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -49,6 +50,15 @@ export default function BottomTabNavigation() {
                 options={{
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="images-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="About Hotel"
+                component={AboutHotelScreen}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="business-outline" size={size} color={color} />
                     ),
                 }}
             />

@@ -6,14 +6,7 @@ import { useCart } from '../../Context/CartContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WaiterImage from '../../../assets/images/waiter.png';
-
-const tables = [
-    { id: '1', name: 'Table 1' },
-    { id: '2', name: 'Table 2' },
-    { id: '3', name: 'Table 3' },
-    { id: '4', name: 'Table 4' },
-    { id: '5', name: 'Table 5' },
-];
+import { useTable } from '../../Context/TableContext';
 
 const categories = [
     { id: '1', name: 'All', icon: '🍽️' },
@@ -193,7 +186,6 @@ const menuItems = [
 ];
 
 export default function HomeScreen({ navigation }) {
-    const [selectedTable, setSelectedTable] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState('1');
     const [searchQuery, setSearchQuery] = useState('');
     const [showAllCategories, setShowAllCategories] = useState(false);
@@ -202,6 +194,7 @@ export default function HomeScreen({ navigation }) {
     const insets = useSafeAreaInsets();
     const [selectedImage, setSelectedImage] = useState(null);
     const [showImagePreview, setShowImagePreview] = useState(false);
+    const { selectedTable } = useTable();
 
     // Hide status bar
     // useEffect(() => {
@@ -214,7 +207,7 @@ export default function HomeScreen({ navigation }) {
     // }, []);
 
     useEffect(() => {
-        if (selectedTable) {
+        if (selectedCategory) {
             Animated.timing(headerAnimation, {
                 toValue: 1,
                 duration: 500,
@@ -223,11 +216,7 @@ export default function HomeScreen({ navigation }) {
         } else {
             headerAnimation.setValue(0);
         }
-    }, [selectedTable]);
-
-    const handleTableSelect = (table) => {
-        setSelectedTable(table);
-    };
+    }, [selectedCategory]);
 
     const addToCart = (item) => {
         try {
@@ -280,18 +269,6 @@ export default function HomeScreen({ navigation }) {
             return 0;
         }
     };
-
-    const renderTableItem = ({ item }) => (
-        <TouchableOpacity
-            style={[
-                styles.tableButton,
-                selectedTable?.id === item.id && styles.selectedTable
-            ]}
-            onPress={() => handleTableSelect(item)}
-        >
-            <Text style={styles.tableText}>{item.name}</Text>
-        </TouchableOpacity>
-    );
 
     const toggleShowAllCategories = () => {
         setShowAllCategories(!showAllCategories);
@@ -464,114 +441,90 @@ export default function HomeScreen({ navigation }) {
                 translucent={true}
             />
             <View style={styles.container}>
-                {!selectedTable ? (
-                    <View style={styles.tablesContainer}>
-                        <Text style={styles.title}>Select Your Table</Text>
-                        <FlatList
-                            key="tables-list"
-                            data={tables}
-                            renderItem={renderTableItem}
-                            keyExtractor={item => item.id}
-                            numColumns={2}
-                            contentContainerStyle={styles.tablesList}
-                        />
-                    </View>
-                ) : (
-                    <View style={styles.menuContainer}>
-                        <Animated.View style={[
-                            styles.headerGradient,
-                            {
-                                opacity: headerAnimation,
-                                transform: [
-                                    { translateY: headerAnimation.interpolate({
-                                        inputRange: [0, 1],
-                                        outputRange: [-20, 0]
-                                    })}
-                                ]
-                            }
-                        ]}>
-                            <LinearGradient
-                                colors={['#8E3FFF', '#6A1FFF']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                style={styles.headerGradientInner}
-                            >
-                                <View style={styles.header}>
-                                    {/* <View style={styles.headerLeft}>
-                                        <TouchableOpacity
-                                            style={styles.iconButton}
-                                            onPress={() => setSelectedTable(null)}
-                                        >
-                                            <Ionicons name="arrow-back" size={24} color={Colors.WHITE} />
-                                        </TouchableOpacity>
-                                    </View> */}
-                                    <View style={styles.headerCenter}>
-                                        <View style={styles.logoContainer}>
-                                            <Image 
-                                                source={{ uri: 'https://cdn2.iconfinder.com/data/icons/travel-caramel-vol-1/256/5_STARS_HOTEL-512.png' }} 
-                                                style={styles.logoImage} 
-                                            />
-                                        </View>
-                                        <View style={styles.titleContainer}>
-                                            <Text style={styles.hotelTitle}>Hotel Royal</Text>
-                                            <Text style={styles.hotelSubtitle}>"Beyond Five Stars" 
-</Text>
-                                        </View>
-                                        {/* <StarRating rating={5} size={16} showText={false} /> */}
-                                    </View>
-                                    <View style={styles.headerRight}>
-                                        <TouchableOpacity
-                                            style={styles.iconButton}
-                                            onPress={navigateToOrders}
-                                        >
-                                            <Ionicons name="cart-outline" size={24} color={Colors.WHITE} />
-                                            {cart.length > 0 && (
-                                                <View style={styles.cartBadge}>
-                                                    <Text style={styles.cartBadgeText}>{cart.length}</Text>
-                                                </View>
-                                            )}
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={styles.iconButton}
-                                            onPress={handleCallWaiter}
-                                        >
-                                            <Image 
-                                                source={WaiterImage} 
-                                                style={{
-                                                    width: 35,
-                                                    height: 35,
-                                                }}
-                                                resizeMode="contain"
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
+                <Animated.View style={[
+                    styles.headerGradient,
+                    {
+                        opacity: headerAnimation,
+                        transform: [
+                            { translateY: headerAnimation.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [-20, 0]
+                            })}
+                        ]
+                    }
+                ]}>
+                    <LinearGradient
+                        colors={['#8E3FFF', '#6A1FFF']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.headerGradientInner}
+                    >
+                        <View style={styles.header}>
+                            <View style={styles.headerCenter}>
+                                <View style={styles.logoContainer}>
+                                    <Image 
+                                        source={{ uri: 'https://cdn2.iconfinder.com/data/icons/travel-caramel-vol-1/256/5_STARS_HOTEL-512.png' }} 
+                                        style={styles.logoImage} 
+                                    />
                                 </View>
-                            </LinearGradient>
-                        </Animated.View>
-
-                        <View style={styles.searchContainer}>
-                            <Ionicons name="search" size={20} color={Colors.GREY} style={styles.searchIcon} />
-                            <TextInput
-                                style={styles.searchInput}
-                                placeholder="Search dishes, restaurants"
-                                value={searchQuery}
-                                onChangeText={setSearchQuery}
-                                placeholderTextColor={Colors.GREY}
-                            />
+                                <View style={styles.titleContainer}>
+                                    <Text style={styles.hotelTitle}>Hotel Royal</Text>
+                                    <Text style={styles.hotelSubtitle}>"Beyond Five Stars" 
+</Text>
+                                </View>
+                            </View>
+                            <View style={styles.headerRight}>
+                                <TouchableOpacity
+                                    style={styles.iconButton}
+                                    onPress={navigateToOrders}
+                                >
+                                    <Ionicons name="cart-outline" size={24} color={Colors.WHITE} />
+                                    {cart.length > 0 && (
+                                        <View style={styles.cartBadge}>
+                                            <Text style={styles.cartBadgeText}>{cart.length}</Text>
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                                <View style={styles.userWithTable}>
+                                  <TouchableOpacity style={styles.iconButton}>
+                                    <Image 
+                                        source={WaiterImage} 
+                                        style={{ width: 35, height: 35 }}
+                                        resizeMode="contain"
+                                    />
+                                  </TouchableOpacity>
+                                  {selectedTable && (
+                                    <View style={styles.tableBadge}>
+                                      <Text style={styles.tableBadgeText}>Table {selectedTable}</Text>
+                                    </View>
+                                  )}
+                                </View>
+                            </View>
                         </View>
+                    </LinearGradient>
+                </Animated.View>
 
-                        {renderCategories()}
+                <View style={styles.searchContainer}>
+                    <Ionicons name="search" size={20} color={Colors.GREY} style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search dishes, restaurants"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholderTextColor={Colors.GREY}
+                    />
+                </View>
 
-                        <FlatList
-                            key="menu-list"
-                            data={filteredMenuItems}
-                            renderItem={renderMenuItem}
-                            keyExtractor={item => item.id}
-                            contentContainerStyle={styles.menuList}
-                            showsVerticalScrollIndicator={false}
-                        />
-                    </View>
-                )}
+                {renderCategories()}
+
+                <FlatList
+                    key="menu-list"
+                    data={filteredMenuItems}
+                    renderItem={renderMenuItem}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={styles.menuList}
+                    showsVerticalScrollIndicator={false}
+                />
             </View>
             {renderImagePreviewModal()}
         </View>
@@ -587,37 +540,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.WHITE,
         padding: 16,
-    },
-    tablesContainer: {
-        flex: 1,
-    },
-    tablesList: {
-        flexGrow: 1,
-        justifyContent: 'center',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    tableButton: {
-        backgroundColor: Colors.LIGHT_GREY,
-        padding: 20,
-        margin: 8,
-        borderRadius: 10,
-        alignItems: 'center',
-        flex: 1,
-    },
-    selectedTable: {
-        backgroundColor: Colors.PRIMARY,
-    },
-    tableText: {
-        fontSize: 18,
-        color: Colors.BLACK,
-    },
-    menuContainer: {
-        flex: 1,
     },
     header: {
         flexDirection: 'row',
@@ -640,9 +562,6 @@ const styles = StyleSheet.create({
     },
     headerGradientInner: {
         width: '100%',
-    },
-    headerLeft: {
-        width: 40,
     },
     headerCenter: {
         flex: 1,
@@ -717,65 +636,67 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.LIGHT_GREY,
-        borderRadius: 10,
-        paddingHorizontal: 15,
-        marginBottom: 20,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        marginBottom: 10,
+        height: 36,
     },
     searchIcon: {
-        marginRight: 10,
+        marginRight: 6,
     },
     searchInput: {
         flex: 1,
-        paddingVertical: 12,
-        fontSize: 16,
+        paddingVertical: 6,
+        fontSize: 13,
         color: Colors.BLACK,
     },
     categoriesSection: {
-        marginBottom: 20,
+        marginBottom: 10,
     },
     categoriesHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: 8,
     },
     categoriesTitle: {
-        fontSize: 20,
+        fontSize: 15,
         fontWeight: 'bold',
         color: Colors.BLACK,
     },
     seeAllText: {
         color: Colors.PRIMARY,
-        fontSize: 16,
+        fontSize: 12,
     },
     categoriesList: {
-        paddingRight: 20,
+        paddingRight: 10,
     },
     expandedCategories: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        marginHorizontal: -5,
+        marginHorizontal: -3,
     },
     categoryButton: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.LIGHT_GREY,
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 25,
-        margin: 5,
-        minWidth: 100,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 16,
+        margin: 3,
+        minWidth: 70,
+        height: 28,
     },
     selectedCategory: {
         backgroundColor: Colors.PRIMARY_LIGHT,
     },
     categoryIcon: {
-        fontSize: 20,
-        marginRight: 5,
+        fontSize: 14,
+        marginRight: 3,
     },
     categoryText: {
-        fontSize: 16,
+        fontSize: 12,
         color: Colors.BLACK,
     },
     selectedCategoryText: {
@@ -788,72 +709,75 @@ const styles = StyleSheet.create({
     menuItem: {
         flexDirection: 'row',
         backgroundColor: Colors.WHITE,
-        marginBottom: 15,
-        borderRadius: 10,
+        marginBottom: 10,
+        borderRadius: 8,
         overflow: 'hidden',
-        elevation: 3,
+        elevation: 2,
         shadowColor: '#171717',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.4,
-        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1,
+        minHeight: 80,
+        height: 90,
     },
     menuImageContainer: {
-        width: 120,
+        width: 70,
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
     },
     menuImage: {
-        width: 120,
-        height: 120,
+        width: 70,
+        height: 70,
         resizeMode: 'cover',
         backgroundColor: Colors.WHITE,
+        borderRadius: 8,
     },
     menuItemDetails: {
         flex: 1,
-        padding: 12,
+        padding: 8,
     },
     titleRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 5,
+        marginBottom: 2,
     },
     prepTimeContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.LIGHT_GREY,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
     },
     prepTimeText: {
-        fontSize: 12,
+        fontSize: 10,
         color: Colors.GREY,
-        marginLeft: 4,
+        marginLeft: 2,
     },
     menuItemName: {
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: 'bold',
         color: Colors.BLACK,
         flex: 1,
-        marginRight: 8,
+        marginRight: 4,
     },
     menuItemDescription: {
-        fontSize: 14,
+        fontSize: 11,
         color: Colors.GREY,
-        marginBottom: 8,
-        lineHeight: 20,
+        marginBottom: 4,
+        lineHeight: 15,
         flexShrink: 1,
     },
     priceAndButtonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: 4,
     },
     menuItemPrice: {
-        fontSize: 16,
+        fontSize: 13,
         color: Colors.PRIMARY,
         fontWeight: 'bold',
     },
@@ -861,28 +785,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.WHITE,
-        borderRadius: 20,
-        padding: 5,
+        borderRadius: 16,
+        padding: 2,
     },
     quantityButton: {
-        padding: 5,
-        borderRadius: 15,
+        padding: 2,
+        borderRadius: 10,
     },
     quantityText: {
-        marginHorizontal: 10,
-        fontSize: 16,
+        marginHorizontal: 6,
+        fontSize: 13,
         fontWeight: 'bold',
         color: Colors.PRIMARY,
-    },
-    bookingImageContainer: {
-        marginBottom: 16,
-        borderRadius: 12,
-        overflow: 'hidden',
-    },
-    bookingImage: {
-        width: '100%',
-        height: 180,
-        resizeMode: 'cover',
     },
     imagePreviewContainer: {
         flex: 1,
@@ -908,5 +822,27 @@ const styles = StyleSheet.create({
     previewImage: {
         width: '100%',
         height: '100%',
+    },
+    userWithTable: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginLeft: 8,
+    },
+    tableBadge: {
+      backgroundColor: '#fff',
+      borderRadius: 10,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      marginLeft: 4,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: 50,
+      borderWidth: 1,
+      borderColor: Colors.PRIMARY,
+    },
+    tableBadgeText: {
+      color: Colors.PRIMARY,
+      fontWeight: 'bold',
+      fontSize: 12,
     },
 });

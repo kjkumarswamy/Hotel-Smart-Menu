@@ -1,16 +1,19 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import TabNavigation from './App/Navigations/TabNavigation';
+import RootNavigation from './App/Navigation/RootNavigation';
 import { CartProvider } from './App/Context/CartContext';
+import { TableProvider } from './App/Context/TableContext';
 
 export default function App() {
   return (
     <SafeAreaProvider>
       <CartProvider>
-        <NavigationContainer>
-          <TabNavigation />
-        </NavigationContainer>
+        <TableProvider>
+          <NavigationContainer>
+            <RootNavigation />
+          </NavigationContainer>
+        </TableProvider>
       </CartProvider>
     </SafeAreaProvider>
   );
